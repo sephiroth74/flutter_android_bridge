@@ -448,4 +448,123 @@ void main() {
     final packageName = 'com.android.wifi';
     await expectLater(client.shell().pm().clear(packageName), completes);
   });
+
+  test('get enforce', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+    await expectLater(client.isConnected(), completion(true));
+    final enforce = client.shell().getEnforce();
+    expect(enforce, completion(isA<SELinuxType>()));
+  });
+
+  test('set enforce', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+    await expectLater(client.isConnected(), completion(true));
+    await expectLater(client.shell().setEnforce(SELinuxType.permissive), completes);
+  });
+
+  test('send tap', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+    await expectLater(client.shell().sendTap(Point(50, 50)), completes);
+  });
+
+  test('sendEvent', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+
+    final event = "/dev/input/event0";
+
+    await expectLater(
+      client.shell().sendEvent(event: event, codeType: 0x0001, code: 0x006a, value: 0x00000001),
+      completes,
+    );
+  });
+
+  test('send text', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+
+    final char = 'a';
+    await expectLater(client.shell().sendText(char), completes);
+  });
+
+  test('send motion event', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+
+    await expectLater(client.shell().sendMotion(MotionEvent.DOWN, pos: Point(300, 50)), completes);
+    await expectLater(client.shell().sendMotion(MotionEvent.UP, pos: Point(300, 50)), completes);
+  });
+
+  test('send drag and drop', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+
+    await expectLater(
+      client.shell().sendDragAndDrop(duration: Duration(seconds: 1), start: Point(0, 0), end: Point(1000, 1000)),
+      completes,
+    );
+  });
+
+  test('send press', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+
+    await expectLater(client.shell().sendPress(inputSource: InputSource.keyboard), completes);
+  });
+
+  test('send key events', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+
+    await expectLater(
+      client.shell().sendKeyEvents([KeyCode.KEYCODE_DPAD_RIGHT, KeyCode.KEYCODE_DPAD_RIGHT]),
+      completes,
+    );
+  });
+
+  test('send key codes', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+    await expectLater(client.shell().sendKeyCodes([1, 2, 3]), completes);
+  });
+
+  test('send swipe', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+    await expectLater(
+      client.shell().sendSwipe(duration: Duration(seconds: 1), start: Point(0, 500), end: Point(0, 0)),
+      completes,
+    );
+  });
+
+  test('get prop type', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+
+    await expectLater(client.shell().getPropType('aaudio.mmap_policy'), completion(PropType.Int));
+    await expectLater(client.shell().getPropType('apexd.status'), completion(PropType.Enum));
+  });
+
+  test('get prop types', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+
+    final types = client.shell().getPropTypes();
+    await expectLater(types, completion(isA<Map<String, PropType>>()));
+    await expectLater(types, completion(isNotEmpty));
+  });
 }

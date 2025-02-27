@@ -5,6 +5,7 @@ Flutter Android Bridge is a Flutter package that provides a bridge to interact w
 ### Features
 
 - Interact with Android's package manager (`pm`) to list, install, and uninstall packages.
+- Interact with Android's activity manager (`am`).
 - Launch Android intents for various actions such as opening URLs, sending emails, and more.
 - Access and manage Android's native functionalities seamlessly from your Flutter app.
 

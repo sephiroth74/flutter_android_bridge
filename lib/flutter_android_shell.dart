@@ -1,5 +1,6 @@
 import 'dart:io' as io;
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:flutter_android_bridge/exceptions.dart';
 import 'package:flutter_android_bridge/flutter_android_am.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_android_bridge/flutter_android_types.dart';
 import 'package:properties/properties.dart';
 
 RegExp _kGetPropRegExp = RegExp(r'^\[(.*)\]\s*:\s*\[([^\]]*)\]\s*$', multiLine: true);
+RegExp _kGetProps = RegExp(r'^\[(.*)\]\s*:\s*\[([^\]]*)\]$');
 
 class FlutterAndroidShell {
   final FlutterAndroidBridge _bridge;
@@ -170,6 +172,24 @@ class FlutterAndroidShell {
     });
   }
 
+  Future<PropType> getPropType(String key) async {
+    final result = await exec(['getprop', '-T', key]);
+    final value = result.stdout.toString().trim();
+    return PropType.fromString(value);
+  }
+
+  Future<Map<String, PropType>> getPropTypes() async {
+    final result = await exec(['getprop', '-T']);
+    final lines = result.stdout.toString().split('\n');
+    final props = <String, PropType>{};
+    for (final line in lines) {
+      _kGetProps.allMatches(line).forEach((match) {
+        props[match.group(1)!] = PropType.fromString(match.group(2)!);
+      });
+    }
+    return props;
+  }
+
   Future<Map<String, String>> getProps() async {
     return exec(['getprop']).then((result) {
       final lines = result.stdout.toString().split('\n');
@@ -239,6 +259,63 @@ class FlutterAndroidShell {
     return sendPort;
   }
 
+  Future<SELinuxType> getEnforce() async {
+    return exec(['getenforce']).then((result) {
+      final value = result.stdout.toString().trim();
+      return SELinuxType.values.firstWhere((e) => e.name.toLowerCase() == value.toLowerCase());
+    });
+  }
+
+  Future<void> setEnforce(SELinuxType type) async {
+    await exec(['setenforce', ...type.toArgs()]);
+  }
+
+  Future<void> sendTap(Point<int> pos, {InputSource? inputSource}) async {
+    await exec(_makeTap(pos, inputSource: inputSource));
+  }
+
+  Future<void> sendEvent({required String event, required int codeType, required int code, required int value}) async {
+    await exec(_makeEvent(event, codeType, code, value));
+  }
+
+  Future<void> sendText(String text, {InputSource? inputSource}) async {
+    await exec(_makeText(text, inputSource: inputSource));
+  }
+
+  Future<void> sendMotion(MotionEvent motion, {required Point<int> pos, InputSource? inputSource}) async {
+    await exec(_makeMotion(motion, pos: pos, inputSource: inputSource));
+  }
+
+  Future<void> sendDragAndDrop({
+    InputSource? inputSource,
+    Duration? duration,
+    required Point<int> start,
+    required Point<int> end,
+  }) async {
+    await exec(_makeDragAndDrop(inputSource: inputSource, duration: duration, start: start, end: end));
+  }
+
+  Future<void> sendPress({InputSource? inputSource}) async {
+    await exec(_makePress(inputSource));
+  }
+
+  Future<void> sendKeyEvents(List<KeyCode> events, {InputSource? inputSource}) async {
+    await exec(_makeKeyEvents(events, inputSource: inputSource));
+  }
+
+  Future<void> sendKeyCodes(List<int> keycodes, {InputSource? inputSource}) async {
+    await exec(_makeKeyCodes(keycodes, inputSource: inputSource));
+  }
+
+  Future<void> sendSwipe({
+    InputSource? inputSource,
+    Duration? duration,
+    required Point<int> start,
+    required Point<int> end,
+  }) async {
+    await exec(_makeSwipe(inputSource: inputSource, duration: duration, start: start, end: end));
+  }
+
   Future<void> _screenMirrorTask(SendPort mainIsolateSendPort) async {
     final port = ReceivePort();
     mainIsolateSendPort.send(port.sendPort);
@@ -279,6 +356,111 @@ class FlutterAndroidShell {
     });
   }
 
+  List<String> _makeSwipe({
+    InputSource? inputSource,
+    Duration? duration,
+    required Point<int> start,
+    required Point<int> end,
+  }) {
+    final args = <String>['input'];
+    if (inputSource != null) {
+      args.add(inputSource.name);
+    }
+    args.add('swipe');
+    args.add(start.x.toString());
+    args.add(start.y.toString());
+    args.add(end.x.toString());
+    args.add(end.y.toString());
+
+    if (duration != null) {
+      args.add(duration.inMilliseconds.toString());
+    }
+
+    return args;
+  }
+
+  List<String> _makePress(InputSource? inputSource) {
+    final args = <String>['input'];
+    if (inputSource != null) {
+      args.add(inputSource.name);
+    }
+    args.add('press');
+    return args;
+  }
+
+  List<String> _makeDragAndDrop({
+    InputSource? inputSource,
+    Duration? duration,
+    required Point<int> start,
+    required Point<int> end,
+  }) {
+    List<String> args = ['input'];
+    if (inputSource != null) {
+      args.add(inputSource.name);
+    }
+    args.add('draganddrop');
+    args.add(start.x.toString());
+    args.add(start.y.toString());
+    args.add(end.x.toString());
+    args.add(end.y.toString());
+
+    if (duration != null) {
+      args.add(duration.inMilliseconds.toString());
+    }
+
+    return args;
+  }
+
+  List<String> _makeMotion(MotionEvent motion, {required Point<int> pos, InputSource? inputSource}) {
+    final args = <String>['input'];
+    if (inputSource != null) {
+      args.add(inputSource.name);
+    }
+
+    args.add('motionevent');
+    args.add(motion.name);
+    args.add(pos.x.toString());
+    args.add(pos.y.toString());
+    return args;
+  }
+
+  List<String> _makeText(String char, {InputSource? inputSource}) {
+    final args = <String>['input'];
+    if (inputSource != null) {
+      args.add(inputSource.name);
+    }
+    args.add('text');
+    args.add(char);
+    return args;
+  }
+
+  List<String> _makeEvent(String event, int codeType, int code, int value) {
+    return ['sendevent', event, codeType.toString(), code.toString(), value.toString()];
+  }
+
+  List<String> _makeTap(Point<int> pos, {InputSource? inputSource}) {
+    final args = <String>['input'];
+    if (inputSource != null) {
+      args.add(inputSource.name);
+    }
+
+    args.add('tap');
+    args.add(pos.x.toString());
+    args.add(pos.y.toString());
+    return args;
+  }
+
+  List<String> _makeKeyEvents(List<KeyCode> events, {InputSource? inputSource}) {
+    final args = <String>['input'];
+    if (inputSource != null) {
+      args.add(inputSource.name);
+    }
+
+    args.add('keyevent');
+    args.addAll(events.map((e) => e.name));
+    return args;
+  }
+
   List<String> _makeKeyEvent(KeyCode keycode, {KeyEventType? eventType, InputSource? inputSource}) {
     final args = <String>['input'];
     if (inputSource != null) {
@@ -292,6 +474,17 @@ class FlutterAndroidShell {
     }
 
     args.add(keycode.name);
+    return args;
+  }
+
+  List<String> _makeKeyCodes(List<int> keycodes, {InputSource? inputSource}) {
+    final args = <String>['input'];
+    if (inputSource != null) {
+      args.add(inputSource.name);
+    }
+
+    args.add('keyevent');
+    args.addAll(keycodes.map((e) => e.toString()));
     return args;
   }
 

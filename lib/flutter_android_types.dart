@@ -570,3 +570,49 @@ enum KeyCode {
 enum InputSource { dpad, keyboard, mouse, touchpad, gamepad, touchnavigation, joystick, touchscreen, stylus, trackball }
 
 enum SettingsType { global, system, secure }
+
+enum SELinuxType with ToArgs {
+  enforcing,
+  permissive;
+
+  @override
+  List<String> toArgs() {
+    switch (this) {
+      case SELinuxType.enforcing:
+        return ['1'];
+      case SELinuxType.permissive:
+        return ['0'];
+    }
+  }
+}
+
+enum MotionEvent { DOWN, UP, MOVE, CANCEL }
+
+RegExp _kPropType = RegExp(r"^enum\s((?:[\w_]+\s?)+)$");
+
+enum PropType {
+  String,
+  Bool,
+  Int,
+  Enum,
+  Unknown;
+
+  static PropType fromString(dynamic value) {
+    switch (value) {
+      case 'string':
+        return PropType.String;
+      case 'bool':
+        return PropType.Bool;
+      case 'int':
+        return PropType.Int;
+      default:
+        final match = _kPropType.firstMatch(value);
+        if (match != null) {
+          // final strings = match.group(1)!;
+          // final s = strings.split(' ');
+          return PropType.Enum;
+        }
+        return PropType.Unknown;
+    }
+  }
+}
