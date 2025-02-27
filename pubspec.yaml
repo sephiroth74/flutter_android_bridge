@@ -2,6 +2,7 @@ name: flutter_android_bridge
 description: "A new Flutter package project."
 version: 0.0.1
 homepage:
+repository: https://github.com/sephiroth74/flutter_android_bridge
 
 platforms:
   macos:
