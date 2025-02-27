@@ -15,7 +15,7 @@ Add the following to your pubspec.yaml file:
 
 ```yaml
 dependencies:
-  flutter_android_bridge: ^0.0.1
+  flutter_android_bridge: ^0.0.2
 ```
 
 Then run `flutter pub get` to install the package.
