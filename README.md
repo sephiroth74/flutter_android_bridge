@@ -11,14 +11,11 @@ Flutter Android Bridge is a Flutter package that provides a bridge to interact w
 
 ### Installation
 
-Add the following to your pubspec.yaml file:
+Execute the following command from the project's root directory:
 
-```yaml
-dependencies:
-  flutter_android_bridge: ^0.0.2
+```bash
+flutter pub add flutter_android_bridge
 ```
-
-Then run `flutter pub get` to install the package.
 
 ### Usage
 
@@ -50,3 +47,9 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 ---
 
 Feel free to customize this description further to better fit your project's specifics and additional features.
+
+
+## Author
+
+*Alessandro Crugnola 
+<alessandro.crugnola@gmail.com>*

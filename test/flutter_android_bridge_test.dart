@@ -1,11 +1,7 @@
 import 'dart:isolate';
 import 'dart:math';
 
-import 'package:flutter_android_bridge/exceptions.dart';
-import 'package:flutter_android_bridge/executor.dart';
-import 'package:flutter_android_bridge/flutter_android_bridge.dart';
-import 'package:flutter_android_bridge/flutter_android_intent.dart';
-import 'package:flutter_android_bridge/flutter_android_types.dart';
+import 'package:flutter_android_bridge/library.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:properties/properties.dart';
 
@@ -14,7 +10,6 @@ const _kAddress = '192.168.1.101:5555';
 void main() {
   test('init', () {
     FlutterAndroidBridge flutterAndroidBridge = FlutterAndroidBridge();
-    // flutterAndroidBridge.init should not throw an exception
     expect(flutterAndroidBridge.init(), completes);
   });
 
@@ -46,12 +41,6 @@ void main() {
 
     print('mac address: $value');
     expect(value, isA<String>());
-
-    final result2 = await client.shell().cat('/timeshift/conf/tvlib-aot-client.properties');
-    expect(result2.exitCode, 0);
-
-    final value2 = result2.stdout.toString().trim();
-    print('tvlib-aot-client.properties: $value2');
   });
 
   test('test shell exec', () async {
@@ -567,4 +556,5 @@ void main() {
     await expectLater(types, completion(isA<Map<String, PropType>>()));
     await expectLater(types, completion(isNotEmpty));
   });
+  
 }

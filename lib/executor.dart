@@ -6,10 +6,11 @@ import 'package:flutter_android_bridge/exceptions.dart';
 const _kRootInterval = Duration(milliseconds: 100);
 const _kRootTimeout = Duration(seconds: 5);
 const _kInterval = Duration(milliseconds: 100);
-const _kDebug = true;
 
 class Executor {
   bool _initialized = false;
+
+  static bool debug = false;
 
   Future<void> init() async {
     if (_initialized) {
@@ -35,8 +36,9 @@ class Executor {
     bool runInShell = false,
     bool checkIfRunning = true,
   }) async {
-    if (_kDebug) {
-      final time = DateTime.now();
+    final time = DateTime.now();
+
+    if (debug) {
       final timeString = '${time.hour}:${time.minute}:${time.second}.${time.millisecond}';
       debugPrint('[$timeString] Executing [shell: $runInShell]: adb ${arguments.join(' ')}');
     }
@@ -45,8 +47,11 @@ class Executor {
 
     final result = await io.Process.run('adb', arguments, runInShell: runInShell);
 
-    if (_kDebug) {
-      // print('[${result.exitCode}] Result: ${result.stdout}');
+    if (debug) {
+      final t2 = DateTime.now();
+      final elapsed = t2.difference(time).inMilliseconds;
+      final timeString = '${t2.hour}:${t2.minute}:${t2.second}.${t2.millisecond}';
+      debugPrint('[$timeString] exitCode: ${result.exitCode}, elapsed: $elapsed ms');
     }
 
     if (checkIfRunning && result.exitCode != 0) {
