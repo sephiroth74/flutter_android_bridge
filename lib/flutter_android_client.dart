@@ -31,18 +31,18 @@ class FlutterAndroidClient {
     if (await isRooted()) {
       return;
     }
-    return await _bridge.executor.root();
+    return await _bridge.executor.root(_connection.arguments);
   }
 
   Future<void> unroot() async {
     if (!await isRooted()) {
       return;
     }
-    return await _bridge.executor.unroot();
+    return await _bridge.executor.unroot(_connection.arguments);
   }
 
   Future<bool> isRooted() async {
-    return await _bridge.executor.isRooted();
+    return await _bridge.executor.isRooted(_connection.arguments);
   }
 
   Future<ProcessResult> disconnect() async {

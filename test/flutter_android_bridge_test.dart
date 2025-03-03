@@ -14,6 +14,7 @@ void main() {
   });
 
   test('root and unroot', () async {
+    FlutterAndroidBridge.debug = true;
     final adb = FlutterAndroidBridge();
     final client = adb.newClient(_kAddress);
 
@@ -556,5 +557,4 @@ void main() {
     await expectLater(types, completion(isA<Map<String, PropType>>()));
     await expectLater(types, completion(isNotEmpty));
   });
-  
 }

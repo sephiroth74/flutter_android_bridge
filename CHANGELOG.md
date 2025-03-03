@@ -1,3 +1,7 @@
+## 0.0.4
+
+Fixed root/unroot arguments
+
 ## 0.0.3
 
 Minor changes

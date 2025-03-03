@@ -91,15 +91,15 @@ class Executor {
     }
   }
 
-  Future<void> root() async {
+  Future<void> root(List<String> arguments) async {
     await init();
-    await execute(['root']);
+    await execute([...arguments, 'root']);
 
     final now = DateTime.now();
 
     while (DateTime.now().difference(now) < _kRootTimeout) {
       await Future.delayed(_kRootInterval);
-      if (await isRooted()) {
+      if (await isRooted(arguments)) {
         return;
       }
     }
@@ -107,14 +107,14 @@ class Executor {
     throw Exception('Failed to start adb as root');
   }
 
-  Future<void> unroot() async {
+  Future<void> unroot(List<String> arguments) async {
     await init();
-    await execute(['unroot']);
+    await execute([...arguments, 'unroot']);
     final now = DateTime.now();
 
     while (DateTime.now().difference(now) < _kRootTimeout) {
       await Future.delayed(_kRootInterval);
-      if (!await isRooted()) {
+      if (!await isRooted(arguments)) {
         return;
       }
     }
@@ -122,9 +122,9 @@ class Executor {
     throw Exception('Failed to stop adb as root');
   }
 
-  Future<bool> isRooted() async {
+  Future<bool> isRooted(List<String> arguments) async {
     await init();
-    final result = await execute(['shell', 'whoami']);
+    final result = await execute([...arguments, 'shell', 'whoami']);
     if (result.exitCode != 0) {
       throw Exception(result.stderr);
     }

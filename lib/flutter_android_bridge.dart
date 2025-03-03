@@ -6,6 +6,12 @@ class FlutterAndroidBridge {
   @internal
   late final Executor executor = Executor();
 
+  static bool get debug => Executor.debug;
+
+  static set debug(bool value) {
+    Executor.debug = value;
+  }
+
   bool _isInitialized = false;
 
   Future<void> init() async {
