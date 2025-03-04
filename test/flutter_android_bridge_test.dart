@@ -18,12 +18,23 @@ void main() {
     final adb = FlutterAndroidBridge();
     final client = adb.newClient(_kAddress);
 
-    await expectLater(client.connect(), completion(true));
+    await expectLater(client.connect(timeout: Duration(milliseconds: 500)), completion(true));
     await expectLater(client.isConnected(), completion(true));
     await expectLater(client.root(), completes);
     await expectLater(client.isRooted(), completion(true));
     await expectLater(client.unroot(), completes);
     await expectLater(client.isRooted(), completion(false));
+  });
+
+  test('wait for device', () async {
+    FlutterAndroidBridge.debug = true;
+
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient(_kAddress);
+
+    // await expectLater(client.connect(), completion(true));
+    // await expectLater(client.isConnected(), completion(true));
+    await expectLater(client.waitForDevice(timeout: Duration(seconds: 1)), completes);
   });
 
   test('test shell cat', () async {

@@ -13,9 +13,13 @@ class FlutterAndroidClient {
     : _connection = Connection(address),
       _bridge = bridge;
 
-  Future<bool> connect() async {
-    await _bridge.executor.execute(['connect', _connection.address]);
+  Future<bool> connect({Duration? timeout}) async {
+    await _bridge.executor.execute(['connect', _connection.address], timeout: timeout);
     return isConnected();
+  }
+
+  Future<void> waitForDevice({Duration? timeout}) async {
+    await _bridge.executor.execute([..._connection.arguments, 'wait-for-device'], timeout: timeout);
   }
 
   Future<bool> isConnected() async {

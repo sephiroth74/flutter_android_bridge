@@ -1,3 +1,8 @@
+## 0.0.5
+
+Added connection timeout
+Added tcp/scanner
+
 ## 0.0.4
 
 Fixed root/unroot arguments

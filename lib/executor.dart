@@ -35,6 +35,7 @@ class Executor {
     List<String> arguments, {
     bool runInShell = false,
     bool checkIfRunning = true,
+    Duration? timeout,
   }) async {
     final time = DateTime.now();
 
@@ -44,8 +45,8 @@ class Executor {
     }
 
     await init();
-
-    final result = await io.Process.run('adb', arguments, runInShell: runInShell);
+    final process = io.Process.run('adb', arguments, runInShell: runInShell);
+    final result = await (timeout != null ? process.timeout(timeout) : process);
 
     if (debug) {
       final t2 = DateTime.now();
