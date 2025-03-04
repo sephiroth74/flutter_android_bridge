@@ -23,7 +23,7 @@ flutter pub add flutter_android_bridge
 import 'package:flutter_android_bridge/flutter_android_bridge.dart';
 
 void main() {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient('192.168.1.1:5555');
 
     await client.connect();
