@@ -13,6 +13,12 @@ void main() {
     expect(flutterAndroidBridge.init(), completes);
   });
 
+  test('is connected', () async {
+    final adb = FlutterAndroidBridge();
+    final client = adb.newClient('192.168.1.112:5555');
+    await expectLater(client.isConnected(), completion(false));
+  });
+
   test('root and unroot', () async {
     FlutterAndroidBridge.debug = true;
     final adb = FlutterAndroidBridge();

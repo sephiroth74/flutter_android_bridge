@@ -1,3 +1,7 @@
+## 0.0.6
+
+Removed FlutterAndroidBridge.debug
+
 ## 0.0.5
 
 Added connection timeout

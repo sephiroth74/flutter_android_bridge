@@ -87,7 +87,7 @@ class TcpScanner {
     final receivePort = ReceivePort();
     final hosts = hostRange.getHosts();
 
-    if (FlutterAndroidBridge.debug) {
+    if (DEBUG) {
       debugPrint('Scanning ${hosts.length} hosts with ${ports.length} ports each');
       debugPrint('First ip: ${hosts.first}, Last ip: ${hosts.last}');
       debugPrint('----------------------------------------');
