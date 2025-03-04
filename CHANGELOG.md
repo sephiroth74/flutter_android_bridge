@@ -1,3 +1,7 @@
+## 0.0.8
+
+isConnected should not throw
+
 ## 0.0.7
 
 adb path must be specified

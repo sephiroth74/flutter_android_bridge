@@ -6,7 +6,7 @@ import 'package:flutter_android_bridge/library.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:properties/properties.dart';
 
-const _kAddress = '192.168.1.101:5555';
+const _kAddress = '192.168.1.112:5555';
 
 String get _kAdbPath {
   final userHome = Platform.environment['HOME'];
@@ -23,6 +23,8 @@ void main() {
   test('root and unroot', () async {
     final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
+
+    await expectLater(client.isConnected(), completes);
 
     await expectLater(client.connect(timeout: Duration(milliseconds: 500)), completion(true));
     await expectLater(client.isConnected(), completion(true));

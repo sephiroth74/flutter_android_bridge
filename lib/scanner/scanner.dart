@@ -70,6 +70,18 @@ class IpAddressRange {
   }
 }
 
+@CopyWith()
+class ScanResult {
+  final String host;
+  final int port;
+  final bool isOpen;
+
+  ScanResult(this.host, this.port, this.isOpen);
+
+  @override
+  String toString() => 'Host: $host, Port: $port, Open: $isOpen';
+}
+
 class TcpScanner {
   final IpAddressRange hostRange;
   final Set<int> ports;
@@ -134,15 +146,4 @@ class _ScanParams {
   final SendPort sendPort;
 
   _ScanParams(this.host, this.port, this.timeout, this.sendPort);
-}
-
-class ScanResult {
-  final String host;
-  final int port;
-  final bool isOpen;
-
-  ScanResult(this.host, this.port, this.isOpen);
-
-  @override
-  String toString() => 'Host: $host, Port: $port, Open: $isOpen';
 }

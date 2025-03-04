@@ -23,7 +23,10 @@ class FlutterAndroidClient {
   }
 
   Future<bool> isConnected() async {
-    final result = await _bridge.executor.execute([..._connection.arguments, 'get-state']);
+    final result = await _bridge.executor.execute([..._connection.arguments, 'get-state'], checkIfRunning: false);
+    if (result.exitCode != 0) {
+      return false;
+    }
     return result.stdout.toString().contains('device');
   }
 
