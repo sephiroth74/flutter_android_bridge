@@ -1,3 +1,7 @@
+## 0.0.7
+
+adb path must be specified
+
 ## 0.0.6
 
 Removed FlutterAndroidBridge.debug

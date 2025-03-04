@@ -4,7 +4,6 @@ import 'dart:isolate';
 
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_android_bridge/library.dart';
 
 part 'scanner.g.dart';
 
@@ -75,8 +74,14 @@ class TcpScanner {
   final IpAddressRange hostRange;
   final Set<int> ports;
   final Duration timeout;
+  final bool debug;
 
-  TcpScanner({required this.hostRange, required this.ports, this.timeout = const Duration(seconds: 1)}) {
+  TcpScanner({
+    required this.hostRange,
+    required this.ports,
+    this.timeout = const Duration(seconds: 1),
+    this.debug = false,
+  }) {
     if (ports.isEmpty) {
       throw ArgumentError('Ports list cannot be empty');
     }
@@ -87,7 +92,7 @@ class TcpScanner {
     final receivePort = ReceivePort();
     final hosts = hostRange.getHosts();
 
-    if (DEBUG) {
+    if (debug) {
       debugPrint('Scanning ${hosts.length} hosts with ${ports.length} ports each');
       debugPrint('First ip: ${hosts.first}, Last ip: ${hosts.last}');
       debugPrint('----------------------------------------');

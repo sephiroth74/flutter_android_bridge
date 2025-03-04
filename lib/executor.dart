@@ -1,7 +1,6 @@
 import 'dart:io' as io;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_android_bridge/exceptions.dart';
 import 'package:flutter_android_bridge/library.dart';
 
 const _kRootInterval = Duration(milliseconds: 100);
@@ -9,7 +8,16 @@ const _kRootTimeout = Duration(seconds: 5);
 const _kInterval = Duration(milliseconds: 100);
 
 class Executor {
+  final String? _adbPath;
+  final bool debug;
   bool _initialized = false;
+
+  Executor({required String? adbPath, this.debug = false}) : _adbPath = adbPath {
+    debugPrint('Executor: adbPath: $adbPath');
+    if (adbPath == null || adbPath.isEmpty) {
+      throw AdbNotFoundException(message: 'adbPath is null');
+    }
+  }
 
   Future<void> init() async {
     if (_initialized) {
@@ -17,37 +25,42 @@ class Executor {
     }
 
     try {
-      await io.Process.run('adb', []);
+      await io.Process.run(_adbPath!, ['--version'], runInShell: true);
+      _initialized = true;
     } on io.ProcessException catch (e) {
       throw AdbNotFoundException(message: e);
     }
-
-    _initialized = true;
   }
 
-  Future<io.Process> start(List<String> arguments, {bool runInShell = false}) async {
+  Future<io.Process> start(List<String> arguments, {bool runInShell = true}) async {
     await init();
-    return await io.Process.start('adb', arguments, runInShell: runInShell);
+    return await io.Process.start(_adbPath!, arguments, runInShell: runInShell);
   }
 
   Future<io.ProcessResult> execute(
     List<String> arguments, {
-    bool runInShell = false,
+    bool runInShell = true,
     bool checkIfRunning = true,
     Duration? timeout,
   }) async {
     final time = DateTime.now();
 
-    if (DEBUG) {
+    if (debug) {
       final timeString = '${time.hour}:${time.minute}:${time.second}.${time.millisecond}';
-      debugPrint('[$timeString] Executing [shell: $runInShell]: adb ${arguments.join(' ')}');
+      debugPrint('[$timeString] Executing $_adbPath ${arguments.join(' ')}');
     }
 
     await init();
-    final process = io.Process.run('adb', arguments, runInShell: runInShell);
-    final result = await (timeout != null ? process.timeout(timeout) : process);
+    final process = io.Process.run(_adbPath!, arguments, runInShell: runInShell);
+    final result;
 
-    if (DEBUG) {
+    if (timeout != null) {
+      result = await process.timeout(timeout);
+    } else {
+      result = await process;
+    }
+
+    if (debug) {
       final t2 = DateTime.now();
       final elapsed = t2.difference(time).inMilliseconds;
       final timeString = '${t2.hour}:${t2.minute}:${t2.second}.${t2.millisecond}';
@@ -59,7 +72,6 @@ class Executor {
         throw AdbDaemonNotRunningException(message: result.stderr.toString());
       }
 
-      // print('[${result.exitCode}] Error: ${result.stderr.toString()}');
       throw Exception(result.stderr);
     }
     return result;
@@ -69,7 +81,7 @@ class Executor {
     await init();
 
     while (true) {
-      final io.ProcessResult result = await execute(['start-server'], runInShell: true, checkIfRunning: false);
+      final io.ProcessResult result = await execute(['start-server']);
 
       if (result.exitCode != 0) {
         if (result.stderr.toString().contains(AdbDaemonNotRunningException.trigger)) {
@@ -84,7 +96,6 @@ class Executor {
 
   Future<void> killServer() async {
     await init();
-
     final io.ProcessResult result = await execute(['kill-server']);
     if (result.exitCode != 0) {
       throw Exception(result.stderr);

@@ -1,5 +1,6 @@
 import 'dart:isolate';
 import 'dart:math';
+import 'dart:io' show Platform;
 
 import 'package:flutter_android_bridge/library.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,21 +8,20 @@ import 'package:properties/properties.dart';
 
 const _kAddress = '192.168.1.101:5555';
 
-void main() {
-  test('init', () {
-    FlutterAndroidBridge flutterAndroidBridge = FlutterAndroidBridge();
-    expect(flutterAndroidBridge.init(), completes);
-  });
+String get _kAdbPath {
+  final userHome = Platform.environment['HOME'];
+  return '$userHome/Library/Android/sdk/platform-tools/adb';
+}
 
+void main() {
   test('is connected', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient('192.168.1.112:5555');
     await expectLater(client.isConnected(), completion(false));
   });
 
   test('root and unroot', () async {
-    FlutterAndroidBridge.debug = true;
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
 
     await expectLater(client.connect(timeout: Duration(milliseconds: 500)), completion(true));
@@ -33,9 +33,7 @@ void main() {
   });
 
   test('wait for device', () async {
-    FlutterAndroidBridge.debug = true;
-
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
 
     // await expectLater(client.connect(), completion(true));
@@ -44,7 +42,7 @@ void main() {
   });
 
   test('test shell cat', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -62,7 +60,8 @@ void main() {
   });
 
   test('test shell exec', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -80,12 +79,14 @@ void main() {
   });
 
   test('list devices', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     await expectLater(adb.listDevices(), completion(isA<List<String>>()));
   });
 
   test('is connected', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final devices = await adb.listDevices();
     expect(devices, isA<List<String>>().having((l) => l.isNotEmpty, 'is not empty', true));
 
@@ -97,20 +98,15 @@ void main() {
     await expectLater(client.isConnected(), completion(true));
   });
 
-  test('check adb', () {
-    Executor executor = Executor();
-    expect(executor.init(), completes);
-  });
-
   test('start adb server', () {
-    Executor executor = Executor();
+    Executor executor = Executor(adbPath: _kAdbPath);
     expect(executor.startServer(), completes);
   });
 
   test(
     'kill adb server',
     () {
-      Executor executor = Executor();
+      Executor executor = Executor(adbPath: _kAdbPath);
       expect(executor.killServer(), completes);
     },
     onPlatform: {
@@ -120,7 +116,8 @@ void main() {
   );
 
   test('mount', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -131,7 +128,8 @@ void main() {
   });
 
   test('get command', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -142,7 +140,8 @@ void main() {
   });
 
   test('has avbctl', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -151,7 +150,8 @@ void main() {
   });
 
   test('which', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -163,7 +163,8 @@ void main() {
   });
 
   test('get verity', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -172,7 +173,8 @@ void main() {
   });
 
   test('is screen on', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -181,7 +183,8 @@ void main() {
   });
 
   test('send key event', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -190,7 +193,8 @@ void main() {
 
   test('send key code', () async {
     final char = 'a';
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -198,7 +202,8 @@ void main() {
   });
 
   test('list settings', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -210,7 +215,8 @@ void main() {
   });
 
   test('get setting key', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -221,7 +227,8 @@ void main() {
   });
 
   test('put settings', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -232,7 +239,8 @@ void main() {
   });
 
   test('delete setting', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -244,7 +252,8 @@ void main() {
   });
 
   test('file exists', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -255,7 +264,8 @@ void main() {
   });
 
   test('save screencap', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -273,7 +283,8 @@ void main() {
   });
 
   test('rm file', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
+
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -289,7 +300,7 @@ void main() {
   });
 
   test('get prop', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -299,7 +310,7 @@ void main() {
   });
 
   test('get props', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -310,7 +321,7 @@ void main() {
   });
 
   test('set prop', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -326,7 +337,7 @@ void main() {
   });
 
   test('am force stop', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -336,7 +347,7 @@ void main() {
   });
 
   test('am start', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -351,7 +362,7 @@ void main() {
   });
 
   test('screen mirror', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -374,7 +385,7 @@ void main() {
   });
 
   test('pm path', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -385,7 +396,7 @@ void main() {
   });
 
   test('pm grant permission', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -396,7 +407,7 @@ void main() {
   });
 
   test('pm revoke permission', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -407,7 +418,7 @@ void main() {
   });
 
   test('pm reset permissions', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -417,7 +428,7 @@ void main() {
   });
 
   test('pm list packages', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -435,7 +446,7 @@ void main() {
   });
 
   test('pm is installed', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -447,7 +458,7 @@ void main() {
   });
 
   test('pm clear', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -457,7 +468,7 @@ void main() {
   });
 
   test('get enforce', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -466,7 +477,7 @@ void main() {
   });
 
   test('set enforce', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.isConnected(), completion(true));
@@ -474,14 +485,14 @@ void main() {
   });
 
   test('send tap', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.shell().sendTap(Point(50, 50)), completes);
   });
 
   test('sendEvent', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
 
@@ -494,7 +505,7 @@ void main() {
   });
 
   test('send text', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
 
@@ -503,7 +514,7 @@ void main() {
   });
 
   test('send motion event', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
 
@@ -512,7 +523,7 @@ void main() {
   });
 
   test('send drag and drop', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
 
@@ -523,7 +534,7 @@ void main() {
   });
 
   test('send press', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
 
@@ -531,7 +542,7 @@ void main() {
   });
 
   test('send key events', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
 
@@ -542,14 +553,14 @@ void main() {
   });
 
   test('send key codes', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.shell().sendKeyCodes([1, 2, 3]), completes);
   });
 
   test('send swipe', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(
@@ -559,7 +570,7 @@ void main() {
   });
 
   test('get prop type', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
 
     await expectLater(client.shell().getPropType('aaudio.mmap_policy'), completion(PropType.Int));
@@ -567,7 +578,7 @@ void main() {
   });
 
   test('get prop types', () async {
-    final adb = FlutterAndroidBridge();
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
 
     final types = client.shell().getPropTypes();

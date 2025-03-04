@@ -4,14 +4,10 @@ import 'package:meta/meta.dart';
 
 class FlutterAndroidBridge {
   @internal
-  late final Executor executor = Executor();
+  late final Executor executor;
 
-  bool _isInitialized = false;
-
-  Future<void> init() async {
-    await executor.init().then((_) {
-      _isInitialized = true;
-    });
+  FlutterAndroidBridge(String adbPath, {bool debug = false}) {
+    executor = Executor(adbPath: adbPath, debug: debug);
   }
 
   FlutterAndroidClient newClient(String address) {
@@ -19,10 +15,6 @@ class FlutterAndroidBridge {
   }
 
   Future<List<String>> listDevices() async {
-    if (!_isInitialized) {
-      await init();
-    }
-
     await executor.startServer();
 
     final result = await executor.execute(['devices'], runInShell: true);
