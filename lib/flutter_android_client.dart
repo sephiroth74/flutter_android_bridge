@@ -1,8 +1,5 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_android_bridge/flutter_android_bridge.dart';
-import 'package:flutter_android_bridge/flutter_android_shell.dart';
 import 'package:flutter_android_bridge/library.dart';
 import 'package:meta/meta.dart';
 
