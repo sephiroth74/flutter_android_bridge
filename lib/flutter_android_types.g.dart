@@ -539,3 +539,194 @@ extension $ScreenRecordOptionsCopyWith on ScreenRecordOptions {
   // ignore: library_private_types_in_public_api
   _$ScreenRecordOptionsCWProxy get copyWith => _$ScreenRecordOptionsCWProxyImpl(this);
 }
+
+abstract class _$AdbInstallOptionsCWProxy {
+  AdbInstallOptions allowVersionDowngrade(bool allowVersionDowngrade);
+
+  AdbInstallOptions allowTestPackage(bool allowTestPackage);
+
+  AdbInstallOptions replace(bool replace);
+
+  AdbInstallOptions forwardLock(bool forwardLock);
+
+  AdbInstallOptions installOnSDCard(bool installOnSDCard);
+
+  AdbInstallOptions grantPermissions(bool grantPermissions);
+
+  AdbInstallOptions instant(bool instant);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `AdbInstallOptions(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// AdbInstallOptions(...).copyWith(id: 12, name: "My name")
+  /// ````
+  AdbInstallOptions call({
+    bool allowVersionDowngrade,
+    bool allowTestPackage,
+    bool replace,
+    bool forwardLock,
+    bool installOnSDCard,
+    bool grantPermissions,
+    bool instant,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfAdbInstallOptions.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfAdbInstallOptions.copyWith.fieldName(...)`
+class _$AdbInstallOptionsCWProxyImpl implements _$AdbInstallOptionsCWProxy {
+  const _$AdbInstallOptionsCWProxyImpl(this._value);
+
+  final AdbInstallOptions _value;
+
+  @override
+  AdbInstallOptions allowVersionDowngrade(bool allowVersionDowngrade) =>
+      this(allowVersionDowngrade: allowVersionDowngrade);
+
+  @override
+  AdbInstallOptions allowTestPackage(bool allowTestPackage) => this(allowTestPackage: allowTestPackage);
+
+  @override
+  AdbInstallOptions replace(bool replace) => this(replace: replace);
+
+  @override
+  AdbInstallOptions forwardLock(bool forwardLock) => this(forwardLock: forwardLock);
+
+  @override
+  AdbInstallOptions installOnSDCard(bool installOnSDCard) => this(installOnSDCard: installOnSDCard);
+
+  @override
+  AdbInstallOptions grantPermissions(bool grantPermissions) => this(grantPermissions: grantPermissions);
+
+  @override
+  AdbInstallOptions instant(bool instant) => this(instant: instant);
+
+  @override
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `AdbInstallOptions(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// AdbInstallOptions(...).copyWith(id: 12, name: "My name")
+  /// ````
+  AdbInstallOptions call({
+    Object? allowVersionDowngrade = const $CopyWithPlaceholder(),
+    Object? allowTestPackage = const $CopyWithPlaceholder(),
+    Object? replace = const $CopyWithPlaceholder(),
+    Object? forwardLock = const $CopyWithPlaceholder(),
+    Object? installOnSDCard = const $CopyWithPlaceholder(),
+    Object? grantPermissions = const $CopyWithPlaceholder(),
+    Object? instant = const $CopyWithPlaceholder(),
+  }) {
+    return AdbInstallOptions(
+      allowVersionDowngrade:
+          allowVersionDowngrade == const $CopyWithPlaceholder()
+              ? _value.allowVersionDowngrade
+              // ignore: cast_nullable_to_non_nullable
+              : allowVersionDowngrade as bool,
+      allowTestPackage:
+          allowTestPackage == const $CopyWithPlaceholder()
+              ? _value.allowTestPackage
+              // ignore: cast_nullable_to_non_nullable
+              : allowTestPackage as bool,
+      replace:
+          replace == const $CopyWithPlaceholder()
+              ? _value.replace
+              // ignore: cast_nullable_to_non_nullable
+              : replace as bool,
+      forwardLock:
+          forwardLock == const $CopyWithPlaceholder()
+              ? _value.forwardLock
+              // ignore: cast_nullable_to_non_nullable
+              : forwardLock as bool,
+      installOnSDCard:
+          installOnSDCard == const $CopyWithPlaceholder()
+              ? _value.installOnSDCard
+              // ignore: cast_nullable_to_non_nullable
+              : installOnSDCard as bool,
+      grantPermissions:
+          grantPermissions == const $CopyWithPlaceholder()
+              ? _value.grantPermissions
+              // ignore: cast_nullable_to_non_nullable
+              : grantPermissions as bool,
+      instant:
+          instant == const $CopyWithPlaceholder()
+              ? _value.instant
+              // ignore: cast_nullable_to_non_nullable
+              : instant as bool,
+    );
+  }
+}
+
+extension $AdbInstallOptionsCopyWith on AdbInstallOptions {
+  /// Returns a callable class that can be used as follows: `instanceOfAdbInstallOptions.copyWith(...)` or like so:`instanceOfAdbInstallOptions.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
+  _$AdbInstallOptionsCWProxy get copyWith => _$AdbInstallOptionsCWProxyImpl(this);
+}
+
+abstract class _$AdbUninstallOptionsCWProxy {
+  AdbUninstallOptions keepData(bool keepData);
+
+  AdbUninstallOptions user(String? user);
+
+  AdbUninstallOptions versionCode(int? versionCode);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `AdbUninstallOptions(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// AdbUninstallOptions(...).copyWith(id: 12, name: "My name")
+  /// ````
+  AdbUninstallOptions call({bool keepData, String? user, int? versionCode});
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfAdbUninstallOptions.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfAdbUninstallOptions.copyWith.fieldName(...)`
+class _$AdbUninstallOptionsCWProxyImpl implements _$AdbUninstallOptionsCWProxy {
+  const _$AdbUninstallOptionsCWProxyImpl(this._value);
+
+  final AdbUninstallOptions _value;
+
+  @override
+  AdbUninstallOptions keepData(bool keepData) => this(keepData: keepData);
+
+  @override
+  AdbUninstallOptions user(String? user) => this(user: user);
+
+  @override
+  AdbUninstallOptions versionCode(int? versionCode) => this(versionCode: versionCode);
+
+  @override
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `AdbUninstallOptions(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// AdbUninstallOptions(...).copyWith(id: 12, name: "My name")
+  /// ````
+  AdbUninstallOptions call({
+    Object? keepData = const $CopyWithPlaceholder(),
+    Object? user = const $CopyWithPlaceholder(),
+    Object? versionCode = const $CopyWithPlaceholder(),
+  }) {
+    return AdbUninstallOptions(
+      keepData:
+          keepData == const $CopyWithPlaceholder()
+              ? _value.keepData
+              // ignore: cast_nullable_to_non_nullable
+              : keepData as bool,
+      user:
+          user == const $CopyWithPlaceholder()
+              ? _value.user
+              // ignore: cast_nullable_to_non_nullable
+              : user as String?,
+      versionCode:
+          versionCode == const $CopyWithPlaceholder()
+              ? _value.versionCode
+              // ignore: cast_nullable_to_non_nullable
+              : versionCode as int?,
+    );
+  }
+}
+
+extension $AdbUninstallOptionsCopyWith on AdbUninstallOptions {
+  /// Returns a callable class that can be used as follows: `instanceOfAdbUninstallOptions.copyWith(...)` or like so:`instanceOfAdbUninstallOptions.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
+  _$AdbUninstallOptionsCWProxy get copyWith => _$AdbUninstallOptionsCWProxyImpl(this);
+}

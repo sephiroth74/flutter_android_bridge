@@ -616,3 +616,128 @@ enum PropType {
     }
   }
 }
+
+enum RebootType {
+  Bootloader('bootloader'),
+  Recovery('recovery'),
+  Sideload('sideload'),
+  SideloadAutoReboot('sideload-auto-reboot'),
+  Dra('dra');
+
+  final String value;
+
+  const RebootType(this.value);
+}
+
+@CopyWith()
+class AdbInstallOptions with ToArgs {
+  // -d: allow version code downgrade
+  final bool allowVersionDowngrade;
+  // -t: allow test packages
+  final bool allowTestPackage;
+  // -r: replace existing application
+  final bool replace;
+  // -l: forward lock the app
+  final bool forwardLock;
+  // -s: Install on SD card instead of internal storage
+  final bool installOnSDCard;
+  // -g: grant all runtime permissions
+  final bool grantPermissions;
+  // --instant: Cause the app to be installed as an ephemeral install app
+  final bool instant;
+
+  const AdbInstallOptions({
+    this.allowVersionDowngrade = false,
+    this.allowTestPackage = false,
+    this.replace = false,
+    this.forwardLock = false,
+    this.installOnSDCard = false,
+    this.grantPermissions = false,
+    this.instant = false,
+  });
+
+  @override
+  List<String> toArgs() {
+    final args = <String>[];
+    if (allowVersionDowngrade) {
+      args.add('-d');
+    }
+
+    if (allowTestPackage) {
+      args.add('-t');
+    }
+
+    if (replace) {
+      args.add('-r');
+    }
+
+    if (forwardLock) {
+      args.add('-l');
+    }
+
+    if (installOnSDCard) {
+      args.add('-s');
+    }
+
+    if (grantPermissions) {
+      args.add('-g');
+    }
+
+    if (instant) {
+      args.add('--instant');
+    }
+
+    return args;
+  }
+}
+
+@CopyWith()
+class AdbUninstallOptions with ToArgs {
+  // -k
+  final bool keepData;
+  // --user
+  final String? user;
+  // --versionCode
+  final int? versionCode;
+
+  AdbUninstallOptions({required this.keepData, required this.user, required this.versionCode});
+
+  @override
+  List<String> toArgs() {
+    final args = <String>[];
+    if (keepData) {
+      args.add('-k');
+    }
+
+    if (user != null) {
+      args.add('--user');
+      args.add(user!);
+    }
+
+    if (versionCode != null) {
+      args.add('--versionCode');
+      args.add(versionCode.toString());
+    }
+
+    return args;
+  }
+}
+
+enum Wakefulness {
+  Awake,
+  Asleep,
+  Dreaming;
+
+  static Wakefulness? fromString(String value) {
+    switch (value.toLowerCase()) {
+      case 'awake':
+        return Wakefulness.Awake;
+      case 'asleep':
+        return Wakefulness.Asleep;
+      case 'dreaming':
+        return Wakefulness.Dreaming;
+      default:
+        return null;
+    }
+  }
+}

@@ -6,7 +6,7 @@ import 'package:flutter_android_bridge/library.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:properties/properties.dart';
 
-const _kAddress = '192.168.1.112:5555';
+const _kAddress = '192.168.1.101:5555';
 
 String get _kAdbPath {
   final userHome = Platform.environment['HOME'];
@@ -18,6 +18,36 @@ void main() {
     final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient('192.168.1.112:5555');
     await expectLater(client.isConnected(), completion(false));
+  });
+
+  test('test read model', () async {
+    final adb = FlutterAndroidBridge(_kAdbPath);
+    final client = adb.newClient('192.168.1.101:5555');
+    await expectLater(client.connect(), completion(true));
+    final product = await client.shell().getProp('ro.build.product');
+    final apiLevel = await client.shell().getProp('ro.build.version.sdk');
+    print('product: $product');
+    print('api level: $apiLevel');
+    expect(product, isA<String>());
+    expect(apiLevel, isA<String>());
+  });
+
+  test('test reboot', () async {
+    final adb = FlutterAndroidBridge(_kAdbPath, debug: true);
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+    await expectLater(client.reboot(), completes);
+  });
+
+  test('test get wakefulness', () async {
+    final adb = FlutterAndroidBridge(_kAdbPath, debug: true);
+    final client = adb.newClient(_kAddress);
+    await expectLater(client.connect(), completion(true));
+    final wakefulness = await client.getWakefulness();
+    expect(wakefulness, isA<Wakefulness>());
+
+    final isAwake = await client.isAwake();
+    expect(isAwake, isA<bool>());
   });
 
   test('root and unroot', () async {
@@ -37,9 +67,6 @@ void main() {
   test('wait for device', () async {
     final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
-
-    // await expectLater(client.connect(), completion(true));
-    // await expectLater(client.isConnected(), completion(true));
     await expectLater(client.waitForDevice(timeout: Duration(seconds: 1)), completes);
   });
 

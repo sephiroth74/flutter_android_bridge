@@ -1,3 +1,7 @@
+## 0.0.9
+
+Added more methods
+
 ## 0.0.8
 
 isConnected should not throw

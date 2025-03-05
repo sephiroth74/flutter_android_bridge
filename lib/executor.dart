@@ -19,6 +19,8 @@ class Executor {
     }
   }
 
+  String get adbPath => _adbPath!;
+
   Future<void> init() async {
     if (_initialized) {
       return;
