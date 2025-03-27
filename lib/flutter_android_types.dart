@@ -1,5 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
+import 'package:intl/intl.dart'; // for date format
 import 'package:copy_with_extension/copy_with_extension.dart';
 
 part 'flutter_android_types.g.dart';
@@ -740,4 +741,110 @@ enum Wakefulness {
         return null;
     }
   }
+}
+
+class LogcatOptions with ToArgs {
+  /// -e    Only prints lines where the log message matches expr, where expr is a regular expression.
+  final String? expr;
+
+  /// -d    Dumps the log to the screen and exits.
+  final bool dump;
+
+  /// -f filename    Writes log message output to `filename`. The default is stdout.
+  final String? filename;
+
+  /// -s    Equivalent to the filter expression '*:S', which sets priority for all tags to silent and is used to precede a list of filter expressions that add content.
+  final List<LogcatTag>? tags;
+
+  /// -v format    Sets the output format for log messages. The default is the thread time format
+  final String? format;
+
+  /// -t 'time'    Prints the most recent lines since the specified time. This option includes -d functionality.
+  /// See the -P option for information about quoting parameters with embedded spaces.
+  final DateTime? since;
+
+  // --pid=pid ...
+  final int? pid;
+
+  final Duration? timeout;
+
+  LogcatOptions({
+    this.expr,
+    bool dump = false,
+    this.filename,
+    this.tags,
+    this.format,
+    this.since,
+    this.pid,
+    this.timeout,
+  }) : dump = dump;
+
+  @override
+  List<String> toArgs() {
+    final args = <String>[];
+    if (expr != null) {
+      args.add('-e');
+      args.add(expr!);
+    }
+
+    if (dump) {
+      args.add('-d');
+    }
+
+    if (filename != null) {
+      args.add('-f');
+      args.add(filename!);
+    }
+
+    if (tags != null) {
+      for (final tag in tags!) {
+        args.add('${tag.name}:${tag.level.value}');
+      }
+      args.add('*:S');
+    }
+
+    if (format != null) {
+      args.add('-v');
+      args.add(format!);
+    }
+
+    if (since != null) {
+      args.add('-T');
+
+      // must be formatted like: 03-27 10:14:00.116
+      args.add(DateFormat('MM-dd HH:mm:ss.SSS').format(since!));
+    }
+
+    if (pid != null) {
+      args.add('--pid');
+      args.add(pid.toString());
+    }
+
+    return args;
+  }
+}
+
+enum LogcatLevel {
+  Verbose('V'),
+  Debug('D'),
+  Info('I'),
+  Warn('W'),
+  Error('E');
+
+  final String value;
+
+  const LogcatLevel(this.value);
+}
+
+class LogcatTag {
+  final String name;
+  final LogcatLevel level;
+
+  LogcatTag({required this.name, required this.level});
+
+  factory LogcatTag.info(String name) => LogcatTag(name: name, level: LogcatLevel.Info);
+  factory LogcatTag.error(String name) => LogcatTag(name: name, level: LogcatLevel.Error);
+  factory LogcatTag.warn(String name) => LogcatTag(name: name, level: LogcatLevel.Warn);
+  factory LogcatTag.debug(String name) => LogcatTag(name: name, level: LogcatLevel.Debug);
+  factory LogcatTag.verbose(String name) => LogcatTag(name: name, level: LogcatLevel.Verbose);
 }

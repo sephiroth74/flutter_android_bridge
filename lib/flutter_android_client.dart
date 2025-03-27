@@ -157,6 +157,12 @@ class FlutterAndroidClient {
     final wakefulness = match.group(1);
     return wakefulness != null ? Wakefulness.fromString(wakefulness) : null;
   }
+
+  Future<ProcessResult> logcat(LogcatOptions options) async {
+    final args = ['logcat'];
+    args.addAll(options.toArgs());
+    return await _bridge.executor.execute([..._connection.arguments, ...args], timeout: options.timeout);
+  }
 }
 
 class Connection {

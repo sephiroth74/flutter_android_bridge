@@ -1,3 +1,8 @@
+## 0.1.0
+
+ * Added `adb logcat` command
+ * Added `adb shell am broadcast` command
+
 ## 0.0.9
 
 Added more methods
