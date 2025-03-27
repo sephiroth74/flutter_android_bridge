@@ -800,7 +800,8 @@ class LogcatOptions with ToArgs {
       for (final tag in tags!) {
         args.add('${tag.name}:${tag.level.value}');
       }
-      args.add('*:S');
+      // args.add('*:S');
+      args.add('-s');
     }
 
     if (format != null) {
@@ -810,9 +811,8 @@ class LogcatOptions with ToArgs {
 
     if (since != null) {
       args.add('-T');
-
       // must be formatted like: 03-27 10:14:00.116
-      args.add(DateFormat('MM-dd HH:mm:ss.SSS').format(since!));
+      args.add('${DateFormat('MM-dd HH:mm:ss.SSS').format(since!)}');
     }
 
     if (pid != null) {
