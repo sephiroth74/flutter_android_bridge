@@ -6,8 +6,8 @@ class FlutterAndroidBridge {
   @internal
   late final Executor executor;
 
-  FlutterAndroidBridge(String adbPath, {bool debug = false}) {
-    executor = Executor(adbPath: adbPath, debug: debug);
+  FlutterAndroidBridge(String adbPath) {
+    executor = Executor(adbPath: adbPath);
   }
 
   FlutterAndroidClient newClient(String address) {

@@ -1,6 +1,6 @@
+import 'dart:io' show Platform;
 import 'dart:isolate';
 import 'dart:math';
-import 'dart:io' show Platform;
 
 import 'package:flutter_android_bridge/library.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,42 +20,6 @@ void main() {
     await expectLater(client.isConnected(), completion(false));
   });
 
-  test('test logcat', () async {
-    final adb = FlutterAndroidBridge(_kAdbPath);
-    final client = adb.newClient(_kAddress);
-    await expectLater(client.connect(), completion(true));
-    await expectLater(client.isConnected(), completion(true));
-    await expectLater(client.root(), completes);
-    await expectLater(client.isRooted(), completion(true));
-
-    final intent = FlutterAndroidIntent(
-      action: 'android.tv.action.PRINT_SESSION_INFO',
-      component: 'android.tv.standalone/.Receiver',
-      extra: FlutterAndroidExtra(es: {'TAG': 'SESSION_INFO'}),
-    );
-
-    final since = DateTime.now();
-    await expectLater(client.shell().am().broadcast(intent), completes);
-
-    final options = LogcatOptions(
-      dump: true,
-      since: since,
-      timeout: Duration(seconds: 5),
-      tags: [LogcatTag.info('SESSION_INFO')],
-    );
-
-    final result = await client.logcat(options);
-
-    print('result:');
-    print(result);
-
-    print('stdout:');
-    print(result.stdout.toString());
-
-    print('stderr:');
-    print(result.stderr.toString());
-  });
-
   test('test read model', () async {
     final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient('192.168.1.101:5555');
@@ -69,14 +33,14 @@ void main() {
   });
 
   test('test reboot', () async {
-    final adb = FlutterAndroidBridge(_kAdbPath, debug: true);
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     await expectLater(client.reboot(), completes);
   });
 
   test('test get wakefulness', () async {
-    final adb = FlutterAndroidBridge(_kAdbPath, debug: true);
+    final adb = FlutterAndroidBridge(_kAdbPath);
     final client = adb.newClient(_kAddress);
     await expectLater(client.connect(), completion(true));
     final wakefulness = await client.getWakefulness();

@@ -1,3 +1,7 @@
+## 0.2.0
+
+ * Enable debugPrint per command
+
 ## 0.1.0
 
  * Added `adb logcat` command

@@ -21,25 +21,39 @@ class FlutterAndroidShell {
     : _bridge = bridge,
       _connection = connection;
 
-  Future<io.ProcessResult> cat(String path) async {
-    return await _bridge.executor.execute([..._connection.arguments, 'shell', 'cat', path]);
+  Future<io.ProcessResult> cat(String path, {bool debug = false}) async {
+    return await _bridge.executor.execute([..._connection.arguments, 'shell', 'cat', path], debug: debug);
   }
 
-  Future<io.ProcessResult> exec(List<String> command) async {
-    return await _bridge.executor.execute([..._connection.arguments, 'shell', ...command]);
+  Future<io.ProcessResult> exec(List<String> command, {bool debug = false}) async {
+    return await _bridge.executor.execute([..._connection.arguments, 'shell', ...command], debug: debug);
   }
 
-  Future<void> mount(String path) async {
-    await _bridge.executor.execute([..._connection.arguments, 'shell', 'mount', '-o', 'rw,remount', path]);
+  Future<void> mount(String path, {bool debug = false}) async {
+    await _bridge.executor.execute([
+      ..._connection.arguments,
+      'shell',
+      'mount',
+      '-o',
+      'rw,remount',
+      path,
+    ], debug: debug);
   }
 
-  Future<void> unmount(String path) async {
-    await _bridge.executor.execute([..._connection.arguments, 'shell', 'mount', '-o', 'ro,remount', path]);
+  Future<void> unmount(String path, {bool debug = false}) async {
+    await _bridge.executor.execute([
+      ..._connection.arguments,
+      'shell',
+      'mount',
+      '-o',
+      'ro,remount',
+      path,
+    ], debug: debug);
   }
 
-  Future<String> command(String command) async {
+  Future<String> command(String command, {bool debug = false}) async {
     return _bridge.executor
-        .execute([..._connection.arguments, 'shell', 'command', '-v', command])
+        .execute([..._connection.arguments, 'shell', 'command', '-v', command], debug: debug)
         .then((result) {
           final string = result.stdout.toString().trim();
           if (result.exitCode != 0 || string.isEmpty) {
@@ -53,19 +67,19 @@ class FlutterAndroidShell {
         });
   }
 
-  Future<void> checkAvbctl() async {
-    return command('avbctl').then((_) {}).catchError((e) {
+  Future<void> checkAvbctl({bool debug = false}) async {
+    return command('avbctl', debug: debug).then((_) {}).catchError((e) {
       throw AdbFileNotFoundExeption('avbctl');
     });
   }
 
-  Future<bool> hasAvbctl() async {
-    return command('avbctl').then((_) => true).catchError((e) => false);
+  Future<bool> hasAvbctl({bool debug = false}) async {
+    return command('avbctl', debug: debug).then((_) => true).catchError((e) => false);
   }
 
-  Future<String> which(String command) async {
+  Future<String> which(String command, {bool debug = false}) async {
     return _bridge.executor
-        .execute([..._connection.arguments, 'shell', 'which', command])
+        .execute([..._connection.arguments, 'shell', 'which', command], debug: debug)
         .then((result) {
           final string = result.stdout.toString().trim();
           if (result.exitCode != 0 || string.isEmpty) {
@@ -79,47 +93,57 @@ class FlutterAndroidShell {
         });
   }
 
-  Future<bool> getVerityStatus() async {
-    return checkAvbctl().then((_) {
+  Future<bool> getVerityStatus({bool debug = false}) async {
+    return checkAvbctl(debug: debug).then((_) {
       return exec(['avbctl', 'get-verity']).then((result) {
         return result.stdout.toString().contains('enabled');
       });
     });
   }
 
-  Future<void> disableVerity() async {
-    await checkAvbctl();
-    await exec(['avbctl', 'disable-verification']);
+  Future<void> disableVerity({bool debug = false}) async {
+    await checkAvbctl(debug: debug);
+    await exec(['avbctl', 'disable-verification'], debug: debug);
   }
 
-  Future<void> enableVerity() async {
-    await checkAvbctl();
-    await exec(['avbctl', 'enable-verity']);
+  Future<void> enableVerity({bool debug = false}) async {
+    await checkAvbctl(debug: debug);
+    await exec(['avbctl', 'enable-verity'], debug: debug);
   }
 
-  Future<bool> isScreenOn() async {
-    final result = await exec(["dumpsys input_method | egrep 'mInteractive=(true|false)'"]);
+  Future<bool> isScreenOn({bool debug = false}) async {
+    final result = await exec(["dumpsys input_method | egrep 'mInteractive=(true|false)'"], debug: debug);
     return result.stdout.toString().contains('mInteractive=true');
   }
 
-  Future<io.ProcessResult> sendKeyEvent(KeyCode keyCode, {KeyEventType? type, InputSource? inputSource}) async {
+  Future<io.ProcessResult> sendKeyEvent(
+    KeyCode keyCode, {
+    KeyEventType? type,
+    InputSource? inputSource,
+    bool debug = false,
+  }) async {
     final event = _makeKeyEvent(keyCode, eventType: type, inputSource: inputSource);
-    return await exec(event);
+    return await exec(event, debug: debug);
   }
 
-  Future<io.ProcessResult> sendKeyCode(int keyCode, {KeyEventType? type, InputSource? inputSource}) async {
+  Future<io.ProcessResult> sendKeyCode(
+    int keyCode, {
+    KeyEventType? type,
+    InputSource? inputSource,
+    bool debug = false,
+  }) async {
     final event = _makeKeyCode(keyCode, eventType: type, inputSource: inputSource);
-    return await exec(event);
+    return await exec(event, debug: debug);
   }
 
-  Future<Properties> listSettings(SettingsType type) async {
-    return exec(['settings', 'list', type.name]).then((result) {
+  Future<Properties> listSettings(SettingsType type, {bool debug = false}) async {
+    return exec(['settings', 'list', type.name], debug: debug).then((result) {
       return Properties.fromString(result.stdout.toString());
     });
   }
 
-  Future<String> getSetting(SettingsType type, {required String key}) async {
-    return exec(['settings', 'get', type.name, key]).then((result) {
+  Future<String> getSetting(SettingsType type, {required String key, bool debug = false}) async {
+    return exec(['settings', 'get', type.name, key], debug: debug).then((result) {
       final value = result.stdout.toString().trim();
       if (value == 'null') {
         return '';
@@ -128,58 +152,58 @@ class FlutterAndroidShell {
     });
   }
 
-  Future<void> putSetting(SettingsType type, {required String key, required String value}) async {
-    await exec(['settings', 'put', type.name, key, value]);
+  Future<void> putSetting(SettingsType type, {required String key, required String value, bool debug = false}) async {
+    await exec(['settings', 'put', type.name, key, value], debug: debug);
   }
 
-  Future<void> deleteSetting(SettingsType type, {required String key}) async {
-    await exec(['settings', 'delete', type.name, key]);
+  Future<void> deleteSetting(SettingsType type, {required String key, bool debug = false}) async {
+    await exec(['settings', 'delete', type.name, key], debug: debug);
   }
 
-  Future<bool> testFile(String path, String mode) async {
-    return exec(['test -$mode $path && echo 1 || echo 0']).then((result) {
+  Future<bool> testFile(String path, String mode, {bool debug = false}) async {
+    return exec(['test -$mode $path && echo 1 || echo 0'], debug: debug).then((result) {
       return result.stdout.toString().trim() == '1';
     });
   }
 
-  Future<bool> exists(String path) async {
-    return testFile(path, 'e');
+  Future<bool> exists(String path, {bool debug = false}) async {
+    return testFile(path, 'e', debug: debug);
   }
 
-  Future<bool> isFile(String path) async {
-    return testFile(path, 'f');
+  Future<bool> isFile(String path, {bool debug = false}) async {
+    return testFile(path, 'f', debug: debug);
   }
 
-  Future<bool> isDirectory(String path) async {
-    return testFile(path, 'd');
+  Future<bool> isDirectory(String path, {bool debug = false}) async {
+    return testFile(path, 'd', debug: debug);
   }
 
-  Future<bool> isSymLink(String path) async {
-    return testFile(path, 'h');
+  Future<bool> isSymLink(String path, {bool debug = false}) async {
+    return testFile(path, 'h', debug: debug);
   }
 
-  Future<io.ProcessResult> screencap(String path) async {
-    return await exec(['screencap', '-p', path]);
+  Future<io.ProcessResult> screencap(String path, {bool debug = false}) async {
+    return await exec(['screencap', '-p', path], debug: debug);
   }
 
-  Future<void> rm(String path, {List<String> args = const []}) async {
-    await exec(['rm', ...args, path]);
+  Future<void> rm(String path, {List<String> args = const [], bool debug = false}) async {
+    await exec(['rm', ...args, path], debug: debug);
   }
 
-  Future<String> getProp(String key) async {
-    return exec(['getprop', key]).then((result) {
+  Future<String> getProp(String key, {bool debug = false}) async {
+    return exec(['getprop', key], debug: debug).then((result) {
       return result.stdout.toString().trim();
     });
   }
 
-  Future<PropType> getPropType(String key) async {
-    final result = await exec(['getprop', '-T', key]);
+  Future<PropType> getPropType(String key, {bool debug = false}) async {
+    final result = await exec(['getprop', '-T', key], debug: debug);
     final value = result.stdout.toString().trim();
     return PropType.fromString(value);
   }
 
-  Future<Map<String, PropType>> getPropTypes() async {
-    final result = await exec(['getprop', '-T']);
+  Future<Map<String, PropType>> getPropTypes({bool debug = false}) async {
+    final result = await exec(['getprop', '-T'], debug: debug);
     final lines = result.stdout.toString().split('\n');
     final props = <String, PropType>{};
     for (final line in lines) {
@@ -190,8 +214,8 @@ class FlutterAndroidShell {
     return props;
   }
 
-  Future<Map<String, String>> getProps() async {
-    return exec(['getprop']).then((result) {
+  Future<Map<String, String>> getProps({bool debug = false}) async {
+    return exec(['getprop'], debug: debug).then((result) {
       final lines = result.stdout.toString().split('\n');
       final props = <String, String>{};
       for (final line in lines) {
@@ -204,13 +228,13 @@ class FlutterAndroidShell {
     });
   }
 
-  Future<void> setProp(String key, String value) async {
+  Future<void> setProp(String key, String value, {bool debug = false}) async {
     final newValue = value == "" ? '""' : value;
-    await exec(['setprop', key, newValue]);
+    await exec(['setprop', key, newValue], debug: debug);
   }
 
-  Future<void> clearProp(String key) async {
-    await setProp(key, '');
+  Future<void> clearProp(String key, {bool debug = false}) async {
+    await setProp(key, '', debug: debug);
   }
 
   FlutterAndroidActivityManager am() {
@@ -259,31 +283,42 @@ class FlutterAndroidShell {
     return sendPort;
   }
 
-  Future<SELinuxType> getEnforce() async {
-    return exec(['getenforce']).then((result) {
+  Future<SELinuxType> getEnforce({bool debug = false}) async {
+    return exec(['getenforce'], debug: debug).then((result) {
       final value = result.stdout.toString().trim();
       return SELinuxType.values.firstWhere((e) => e.name.toLowerCase() == value.toLowerCase());
     });
   }
 
-  Future<void> setEnforce(SELinuxType type) async {
-    await exec(['setenforce', ...type.toArgs()]);
+  Future<void> setEnforce(SELinuxType type, {bool debug = false}) async {
+    await exec(['setenforce', ...type.toArgs()], debug: debug);
   }
 
-  Future<void> sendTap(Point<int> pos, {InputSource? inputSource}) async {
-    await exec(_makeTap(pos, inputSource: inputSource));
+  Future<void> sendTap(Point<int> pos, {InputSource? inputSource, bool debug = false}) async {
+    await exec(_makeTap(pos, inputSource: inputSource), debug: debug);
   }
 
-  Future<void> sendEvent({required String event, required int codeType, required int code, required int value}) async {
-    await exec(_makeEvent(event, codeType, code, value));
+  Future<void> sendEvent({
+    required String event,
+    required int codeType,
+    required int code,
+    required int value,
+    bool debug = false,
+  }) async {
+    await exec(_makeEvent(event, codeType, code, value), debug: debug);
   }
 
-  Future<void> sendText(String text, {InputSource? inputSource}) async {
-    await exec(_makeText(text, inputSource: inputSource));
+  Future<void> sendText(String text, {InputSource? inputSource, bool debug = false}) async {
+    await exec(_makeText(text, inputSource: inputSource), debug: debug);
   }
 
-  Future<void> sendMotion(MotionEvent motion, {required Point<int> pos, InputSource? inputSource}) async {
-    await exec(_makeMotion(motion, pos: pos, inputSource: inputSource));
+  Future<void> sendMotion(
+    MotionEvent motion, {
+    required Point<int> pos,
+    InputSource? inputSource,
+    bool debug = false,
+  }) async {
+    await exec(_makeMotion(motion, pos: pos, inputSource: inputSource), debug: debug);
   }
 
   Future<void> sendDragAndDrop({
@@ -291,20 +326,21 @@ class FlutterAndroidShell {
     Duration? duration,
     required Point<int> start,
     required Point<int> end,
+    bool debug = false,
   }) async {
-    await exec(_makeDragAndDrop(inputSource: inputSource, duration: duration, start: start, end: end));
+    await exec(_makeDragAndDrop(inputSource: inputSource, duration: duration, start: start, end: end), debug: debug);
   }
 
-  Future<void> sendPress({InputSource? inputSource}) async {
-    await exec(_makePress(inputSource));
+  Future<void> sendPress({InputSource? inputSource, bool debug = false}) async {
+    await exec(_makePress(inputSource), debug: debug);
   }
 
-  Future<void> sendKeyEvents(List<KeyCode> events, {InputSource? inputSource}) async {
-    await exec(_makeKeyEvents(events, inputSource: inputSource));
+  Future<void> sendKeyEvents(List<KeyCode> events, {InputSource? inputSource, bool debug = false}) async {
+    await exec(_makeKeyEvents(events, inputSource: inputSource), debug: debug);
   }
 
-  Future<void> sendKeyCodes(List<int> keycodes, {InputSource? inputSource}) async {
-    await exec(_makeKeyCodes(keycodes, inputSource: inputSource));
+  Future<void> sendKeyCodes(List<int> keycodes, {InputSource? inputSource, bool debug = false}) async {
+    await exec(_makeKeyCodes(keycodes, inputSource: inputSource), debug: debug);
   }
 
   Future<void> sendSwipe({
@@ -312,8 +348,9 @@ class FlutterAndroidShell {
     Duration? duration,
     required Point<int> start,
     required Point<int> end,
+    bool debug = false,
   }) async {
-    await exec(_makeSwipe(inputSource: inputSource, duration: duration, start: start, end: end));
+    await exec(_makeSwipe(inputSource: inputSource, duration: duration, start: start, end: end), debug: debug);
   }
 
   Future<void> _screenMirrorTask(SendPort mainIsolateSendPort) async {

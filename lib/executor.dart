@@ -9,10 +9,9 @@ const _kInterval = Duration(milliseconds: 100);
 
 class Executor {
   final String? _adbPath;
-  final bool debug;
   bool _initialized = false;
 
-  Executor({required String? adbPath, this.debug = false}) : _adbPath = adbPath {
+  Executor({required String? adbPath}) : _adbPath = adbPath {
     debugPrint('Executor: adbPath: $adbPath');
     if (adbPath == null || adbPath.isEmpty) {
       throw AdbNotFoundException(message: 'adbPath is null');
@@ -44,6 +43,7 @@ class Executor {
     bool runInShell = true,
     bool checkIfRunning = true,
     Duration? timeout,
+    bool debug = false,
   }) async {
     final time = DateTime.now();
 
@@ -79,11 +79,11 @@ class Executor {
     return result;
   }
 
-  Future<void> startServer() async {
+  Future<void> startServer({bool debug = false}) async {
     await init();
 
     while (true) {
-      final io.ProcessResult result = await execute(['start-server']);
+      final io.ProcessResult result = await execute(['start-server'], debug: debug);
 
       if (result.exitCode != 0) {
         if (result.stderr.toString().contains(AdbDaemonNotRunningException.trigger)) {
@@ -96,17 +96,17 @@ class Executor {
     }
   }
 
-  Future<void> killServer() async {
+  Future<void> killServer({bool debug = false}) async {
     await init();
-    final io.ProcessResult result = await execute(['kill-server']);
+    final io.ProcessResult result = await execute(['kill-server'], debug: debug);
     if (result.exitCode != 0) {
       throw Exception(result.stderr);
     }
   }
 
-  Future<void> root(List<String> arguments) async {
+  Future<void> root(List<String> arguments, {bool debug = false}) async {
     await init();
-    await execute([...arguments, 'root']);
+    await execute([...arguments, 'root'], debug: debug);
 
     final now = DateTime.now();
 
@@ -120,9 +120,9 @@ class Executor {
     throw Exception('Failed to start adb as root');
   }
 
-  Future<void> unroot(List<String> arguments) async {
+  Future<void> unroot(List<String> arguments, {bool debug = false}) async {
     await init();
-    await execute([...arguments, 'unroot']);
+    await execute([...arguments, 'unroot'], debug: debug);
     final now = DateTime.now();
 
     while (DateTime.now().difference(now) < _kRootTimeout) {
@@ -135,9 +135,9 @@ class Executor {
     throw Exception('Failed to stop adb as root');
   }
 
-  Future<bool> isRooted(List<String> arguments) async {
+  Future<bool> isRooted(List<String> arguments, {bool debug = false}) async {
     await init();
-    final result = await execute([...arguments, 'shell', 'whoami']);
+    final result = await execute([...arguments, 'shell', 'whoami'], debug: debug);
     if (result.exitCode != 0) {
       throw Exception(result.stderr);
     }

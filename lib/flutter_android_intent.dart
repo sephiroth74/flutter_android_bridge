@@ -222,4 +222,9 @@ class FlutterAndroidExtra {
     }
     return args;
   }
+
+  @override
+  String toString() {
+    return 'FlutterAndroidExtra{es: $es, ez: $ez, ei: $ei, el: $el, ef: $ef, eu: $eu, ecn: $ecn, eia: $eia, ela: $ela, efa: $efa, esa: $esa}';
+  }
 }

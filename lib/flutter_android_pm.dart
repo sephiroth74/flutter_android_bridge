@@ -37,7 +37,7 @@ class FlutterAndroidPackageManager {
   /// final path = await pm.path('com.example.app');
   /// ```
   ///
-  Future<List<String>> path(String packageName, {String? user}) async {
+  Future<List<String>> path(String packageName, {String? user, bool debug = false}) async {
     final args = ['pm', 'path'];
 
     if (user != null) {
@@ -46,7 +46,7 @@ class FlutterAndroidPackageManager {
 
     args.add(packageName);
 
-    final lines = await _shell.exec(args);
+    final lines = await _shell.exec(args, debug: debug);
     final result = <String>[];
 
     lines.stdout.toString().split('\n').forEach((line) {
@@ -69,7 +69,7 @@ class FlutterAndroidPackageManager {
   /// await pm.grant('com.example.app', 'android.permission.CAMERA');
   /// ```
   ///
-  Future<void> grant(String packageName, String permission, {String? user}) async {
+  Future<void> grant(String packageName, String permission, {String? user, bool debug = false}) async {
     final args = ['pm', 'grant'];
 
     if (user != null) {
@@ -77,7 +77,7 @@ class FlutterAndroidPackageManager {
     }
 
     args.addAll([packageName, permission]);
-    await _shell.exec(args);
+    await _shell.exec(args, debug: debug);
   }
 
   /// revoke the specified [permission] from the package with the given [packageName].
@@ -91,7 +91,7 @@ class FlutterAndroidPackageManager {
   /// await pm.revoke('com.example.app', 'android.permission.CAMERA');
   /// ```
   ///
-  Future<void> revoke(String packageName, String permission, {String? user}) async {
+  Future<void> revoke(String packageName, String permission, {String? user, bool debug = false}) async {
     final args = ['pm', 'revoke'];
 
     if (user != null) {
@@ -99,7 +99,7 @@ class FlutterAndroidPackageManager {
     }
 
     args.addAll([packageName, permission]);
-    await _shell.exec(args);
+    await _shell.exec(args, debug: debug);
   }
 
   /// reset all permissions for the package with the given [packageName].
@@ -113,7 +113,7 @@ class FlutterAndroidPackageManager {
   /// await pm.resetPermissions('com.example.app');
   /// ```
   ///
-  Future<void> resetPermissions(String packageName, {String? user}) async {
+  Future<void> resetPermissions(String packageName, {String? user, bool debug = false}) async {
     final args = ['pm', 'reset-permissions'];
 
     if (user != null) {
@@ -121,7 +121,7 @@ class FlutterAndroidPackageManager {
     }
 
     args.add(packageName);
-    await _shell.exec(args);
+    await _shell.exec(args, debug: debug);
   }
 
   /// Get the list of packages installed on the device.
@@ -143,6 +143,7 @@ class FlutterAndroidPackageManager {
     ListPackageFilter filter = const ListPackageFilter(),
     ListPackageDisplayOptions displayOptions = const ListPackageDisplayOptions(),
     String? nameFilter,
+    bool debug = false,
   }) async {
     final args = ['pm', 'list', 'packages'];
     args.addAll(filter.toArgs());
@@ -152,7 +153,7 @@ class FlutterAndroidPackageManager {
       args.add(nameFilter);
     }
 
-    final lines = await _shell.exec(args);
+    final lines = await _shell.exec(args, debug: debug);
     final result = <Package>[];
 
     lines.stdout.toString().split('\n').forEach((line) {
@@ -178,8 +179,8 @@ class FlutterAndroidPackageManager {
   }
 
   /// Check if the package with the given [packageName] is installed.
-  Future<bool> isInstalled(String packageName) async {
-    return path(packageName).then((value) => value.isNotEmpty).catchError((_) => false);
+  Future<bool> isInstalled(String packageName, {bool debug = false}) async {
+    return path(packageName, debug: debug).then((value) => value.isNotEmpty).catchError((_) => false);
   }
 
   /// Clear the data of the package with the given [packageName].
@@ -192,47 +193,47 @@ class FlutterAndroidPackageManager {
   /// ```dart
   /// await pm.clear('com.example.app');
   /// ```
-  Future<void> clear(String packageName, {String? user}) async {
-    return _operation('clear', packageName: packageName, user: user);
+  Future<void> clear(String packageName, {String? user, bool debug = false}) async {
+    return _operation('clear', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> enable(String packageName, {String? user}) async {
-    return _operation('enable', packageName: packageName, user: user);
+  Future<void> enable(String packageName, {String? user, bool debug = false}) async {
+    return _operation('enable', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> disable(String packageName, {String? user}) async {
-    return _operation('disable', packageName: packageName, user: user);
+  Future<void> disable(String packageName, {String? user, bool debug = false}) async {
+    return _operation('disable', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> disableUser(String packageName, {String? user}) async {
-    return _operation('disable-user', packageName: packageName, user: user);
+  Future<void> disableUser(String packageName, {String? user, bool debug = false}) async {
+    return _operation('disable-user', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> disableUntilUsed(String packageName, {String? user}) async {
-    return _operation('disable-until-used', packageName: packageName, user: user);
+  Future<void> disableUntilUsed(String packageName, {String? user, bool debug = false}) async {
+    return _operation('disable-until-used', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> defaultState(String packageName, {String? user}) async {
-    return _operation('default-state', packageName: packageName, user: user);
+  Future<void> defaultState(String packageName, {String? user, bool debug = false}) async {
+    return _operation('default-state', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> unhide(String packageName, {String? user}) async {
-    return _operation('unhide', packageName: packageName, user: user);
+  Future<void> unhide(String packageName, {String? user, bool debug = false}) async {
+    return _operation('unhide', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> hide(String packageName, {String? user}) async {
-    return _operation('hide', packageName: packageName, user: user);
+  Future<void> hide(String packageName, {String? user, bool debug = false}) async {
+    return _operation('hide', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> suspend(String packageName, {String? user}) async {
-    return _operation('suspend', packageName: packageName, user: user);
+  Future<void> suspend(String packageName, {String? user, bool debug = false}) async {
+    return _operation('suspend', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> unsuspend(String packageName, {String? user}) async {
-    return _operation('unsuspend', packageName: packageName, user: user);
+  Future<void> unsuspend(String packageName, {String? user, bool debug = false}) async {
+    return _operation('unsuspend', packageName: packageName, user: user, debug: debug);
   }
 
-  Future<void> _operation(String operation, {required String packageName, String? user}) async {
+  Future<void> _operation(String operation, {required String packageName, String? user, bool debug = false}) async {
     final args = ['pm', operation];
 
     if (user != null) {
@@ -240,6 +241,6 @@ class FlutterAndroidPackageManager {
     }
 
     args.add(packageName);
-    await _shell.exec(args);
+    await _shell.exec(args, debug: debug);
   }
 }
