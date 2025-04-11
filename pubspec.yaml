@@ -1,6 +1,6 @@
 name: flutter_android_bridge
 description: "Flutter Android Bridge is a Flutter package that provides a bridge to interact with Android's native functionalities. This package allows Flutter applications to communicate with Android's package manager, intents, and other native features through a simple and intuitive API"
-version: 0.2.1
+version: 0.2.2
 homepage:
 repository: https://github.com/sephiroth74/flutter_android_bridge
 
@@ -20,6 +20,7 @@ dependencies:
   properties: ^2.1.1
   copy_with_extension: ^6.0.1
   intl: ^0.20.2
+  isolate_pool_2: ^1.0.8
 
 dev_dependencies:
   flutter_test:

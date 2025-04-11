@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:flutter/foundation.dart';
+import 'package:isolate_pool_2/isolate_pool_2.dart';
 
 part 'scanner.g.dart';
 
@@ -87,8 +87,15 @@ class TcpScanner {
   final Set<int> ports;
   final Duration timeout;
   final bool debug;
+  final int? maxJobs;
 
-  TcpScanner({required this.hostRange, required this.ports, this.timeout = const Duration(seconds: 1), this.debug = false}) {
+  TcpScanner({
+    required this.hostRange,
+    required this.ports,
+    this.timeout = const Duration(seconds: 1),
+    this.debug = false,
+    this.maxJobs,
+  }) {
     if (ports.isEmpty) {
       throw ArgumentError('Ports list cannot be empty');
     }
@@ -96,7 +103,6 @@ class TcpScanner {
 
   Future<List<ScanResult>> scan() async {
     final results = <ScanResult>[];
-    final receivePort = ReceivePort();
     final hosts = hostRange.getHosts();
 
     if (debug) {
@@ -105,49 +111,49 @@ class TcpScanner {
       debugPrint('----------------------------------------');
     }
 
+    final cpus = maxJobs ?? (Platform.numberOfProcessors * 2);
+    final pool = IsolatePool(cpus);
+    await pool.start();
+
+    final futures = <Future<ScanResult>>[];
+
     for (final host in hosts) {
       for (final port in ports) {
-        await Isolate.spawn(
-          _scanPort,
-          _ScanParams(host: host, port: port, timeout: timeout, sendPort: receivePort.sendPort, debug: debug),
-        );
+        futures.add(pool.scheduleJob<ScanResult>(ScanJob(host, port, timeout)));
       }
     }
 
-    await for (final result in receivePort) {
-      results.add(result as ScanResult);
-      if (results.length == hosts.length * ports.length) {
-        receivePort.close();
-        break;
+    // Wait for all futures to complete and collect results
+    for (final future in futures) {
+      final result = await future;
+      results.add(result);
+      if (debug) {
+        debugPrint('[${DateTime.now()}] scan result: ${result.toString()}');
       }
     }
+
+    pool.stop();
 
     return results;
   }
-
-  static Future<void> _scanPort(_ScanParams params) async {
-    if(params.debug) {
-      debugPrint('Scanning ${params.host}:${params.port}');
-    }
-    
-    // Create a socket connection to the host and port
-    await Socket.connect(params.host, params.port, timeout: params.timeout)
-        .then((socket) {
-          socket.destroy();
-          params.sendPort.send(ScanResult(params.host, params.port, true));
-        })
-        .catchError((_) {
-          params.sendPort.send(ScanResult(params.host, params.port, false));
-        });
-  }
 }
 
-class _ScanParams {
+class ScanJob extends PooledJob<ScanResult> {
   final String host;
   final int port;
   final Duration timeout;
-  final SendPort sendPort;
-  final bool debug;
 
-  _ScanParams({required this.host, required this.port, required this.timeout, required this.sendPort, this.debug = false});
+  ScanJob(this.host, this.port, this.timeout);
+
+  @override
+  Future<ScanResult> job() async {
+    return Socket.connect(host, port, timeout: timeout)
+        .then((socket) {
+          socket.destroy();
+          return ScanResult(host, port, true);
+        })
+        .catchError((_) {
+          return ScanResult(host, port, false);
+        });
+  }
 }

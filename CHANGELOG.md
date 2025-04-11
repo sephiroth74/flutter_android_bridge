@@ -1,3 +1,7 @@
+## 0.2.2
+
+ * Using isolate pool for the scanner
+
 ## 0.2.1
 
  * Toggle debug for tcp scanner
