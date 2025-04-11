@@ -1,3 +1,7 @@
+## 0.2.1
+
+ * Toggle debug for tcp scanner
+
 ## 0.2.0
 
  * Enable debugPrint per command
