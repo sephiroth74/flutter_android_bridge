@@ -8,6 +8,7 @@ void main() {
       hostRange: IpAddressRange('192.168.1.0/24'),
       ports: {5555},
       timeout: Duration(milliseconds: 500),
+      debug: true,
     );
 
     stopWatch.start();
