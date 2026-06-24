@@ -1,3 +1,7 @@
+## 0.2.3
+
+ * Dependencies update
+
 ## 0.2.2
 
  * Using isolate pool for the scanner
