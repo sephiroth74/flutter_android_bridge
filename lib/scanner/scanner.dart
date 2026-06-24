@@ -104,14 +104,16 @@ class TcpScanner {
   Future<List<ScanResult>> scan() async {
     final results = <ScanResult>[];
     final hosts = hostRange.getHosts();
+    final cpus = maxJobs ?? (Platform.numberOfProcessors * 2);
 
     if (debug) {
       debugPrint('Scanning ${hosts.length} hosts with ${ports.length} ports each');
       debugPrint('First ip: ${hosts.first}, Last ip: ${hosts.last}');
+      debugPrint('Total jobs: ${hosts.length * ports.length}');
+      debugPrint('Max jobs: $cpus');
       debugPrint('----------------------------------------');
     }
 
-    final cpus = maxJobs ?? (Platform.numberOfProcessors * 2);
     final pool = IsolatePool(cpus);
     await pool.start();
 

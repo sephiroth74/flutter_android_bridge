@@ -618,4 +618,35 @@ void main() {
     await expectLater(types, completion(isA<Map<String, PropType>>()));
     await expectLater(types, completion(isNotEmpty));
   });
+
+  test('logcat options on real device 192.168.1.101', () async {
+    final adb = FlutterAndroidBridge(_kAdbPath);
+    final client = adb.newClient('192.168.1.101:5555');
+    final marker = 'flutter_android_bridge_logcat_${DateTime.now().millisecondsSinceEpoch}';
+    final since = DateTime.now().subtract(Duration(seconds: 30));
+
+    await expectLater(client.connect(), completion(true));
+    await expectLater(client.isConnected(), completion(true));
+
+    final writeLog = await client.shell().exec(['log', '-t', 'System.out', marker]);
+    expect(writeLog.exitCode, 0);
+
+    final result = await client.logcat(
+      LogcatOptions(
+        expr: marker,
+        dump: true,
+        format: 'threadtime',
+        tags: [LogcatTag.info('System.out')],
+        since: since,
+        timeout: Duration(seconds: 10),
+      ),
+      debug: true,
+    );
+
+    expect(result.exitCode, 0);
+    final output = result.stdout.toString();
+    expect(output, isNotEmpty);
+    expect(output, contains(marker));
+    print('logcat output:\n$output');
+  });
 }
